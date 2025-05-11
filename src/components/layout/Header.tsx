@@ -3,13 +3,15 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
-import { Search, ShoppingCart, Heart, Menu, X } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { Search, ShoppingCart, Heart, Menu, X, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Header: React.FC = () => {
   const { toggleCart, totalItems: cartItems } = useCart();
   const { totalItems: wishlistItems } = useWishlist();
+  const { user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const isMobile = useIsMobile();
@@ -102,6 +104,32 @@ const Header: React.FC = () => {
                 </div>
               )}
             </button>
+            
+            {/* User auth buttons */}
+            {user ? (
+              <Link 
+                to="/dashboard"
+                className="flex items-center gap-2 py-1 px-3 rounded-full border border-gray-200 hover:bg-gray-100 transition-colors"
+              >
+                <User size={18} />
+                <span className="text-sm">Account</span>
+              </Link>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Link
+                  to="/login"
+                  className="text-sm py-1 px-3 text-gray-700 hover:text-brand-navy transition-colors"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="text-sm py-1 px-3 bg-brand-coral text-white rounded-full hover:bg-brand-coral/90 transition-colors"
+                >
+                  Sign Up
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -145,6 +173,35 @@ const Header: React.FC = () => {
               </Link>
             ))}
             
+            {/* User auth links for mobile */}
+            {user ? (
+              <Link 
+                to="/dashboard"
+                className="flex items-center py-2 text-gray-700"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <User size={18} className="mr-2" />
+                My Account
+              </Link>
+            ) : (
+              <>
+                <Link 
+                  to="/login"
+                  className="block py-2 text-gray-700 hover:text-brand-navy"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Login
+                </Link>
+                <Link 
+                  to="/signup"
+                  className="block py-2 text-gray-700 hover:text-brand-navy"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
+
             <div className="pt-2 flex space-x-4 border-t">
               <Link 
                 to="/wishlist" 
@@ -163,9 +220,12 @@ const Header: React.FC = () => {
                 className="flex items-center py-2 text-gray-700"
                 onClick={() => {
                   setIsMenuOpen(false);
-                  // Fix: Using optional chaining to safely access focus method
+                  // Fixed: Using optional chaining to safely access focus method
                   setTimeout(() => {
-                    document.querySelector('input[type="search"]')?.focus?.();
+                    const searchInput = document.querySelector('input[type="search"]');
+                    if (searchInput && 'focus' in searchInput) {
+                      searchInput.focus();
+                    }
                   }, 100);
                 }}
               >
