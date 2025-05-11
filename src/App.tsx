@@ -9,6 +9,10 @@ import { WishlistProvider } from "@/context/WishlistContext";
 
 // Pages
 import Index from "./pages/Index";
+import Shop from "./pages/Shop";
+import Categories from "./pages/Categories";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import Checkout from "./pages/Checkout";
 import OrderSuccess from "./pages/OrderSuccess";
@@ -35,6 +39,10 @@ const App = () => (
               <main className="flex-grow">
                 <Routes>
                   <Route path="/" element={<Index />} />
+                  <Route path="/shop" element={<Shop />} />
+                  <Route path="/categories" element={<Categories />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/contact" element={<Contact />} />
                   <Route path="/product/:id" element={<ProductDetail />} />
                   <Route path="/checkout" element={<Checkout />} />
                   <Route path="/order-success" element={<OrderSuccess />} />

@@ -163,8 +163,9 @@ const Header: React.FC = () => {
                 className="flex items-center py-2 text-gray-700"
                 onClick={() => {
                   setIsMenuOpen(false);
+                  // Fix: Using optional chaining to safely access focus method
                   setTimeout(() => {
-                    document.querySelector('input[type="search"]')?.focus();
+                    document.querySelector('input[type="search"]')?.focus?.();
                   }, 100);
                 }}
               >

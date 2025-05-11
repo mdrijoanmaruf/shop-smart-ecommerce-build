@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
-import { Check, ChevronLeft } from "lucide-react";
+import { Check, ChevronLeft, CreditCard, Banknote, Truck } from "lucide-react";
 import { toast } from "sonner";
 
 interface FormData {
@@ -212,7 +212,7 @@ const Checkout: React.FC = () => {
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                 <h2 className="text-xl font-semibold mb-4">Payment Method</h2>
                 <div className="space-y-4">
-                  <div className="flex items-center">
+                  <div className="flex items-center border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
                     <input
                       type="radio"
                       id="creditCard"
@@ -220,11 +220,31 @@ const Checkout: React.FC = () => {
                       value="creditCard"
                       checked={formData.paymentMethod === "creditCard"}
                       onChange={handleChange}
-                      className="mr-2"
+                      className="mr-3"
                     />
-                    <label htmlFor="creditCard">Credit Card</label>
+                    <label htmlFor="creditCard" className="flex-1 cursor-pointer flex items-center">
+                      <CreditCard className="mr-2 text-gray-600" size={20} />
+                      <span className="font-medium">Credit Card</span>
+                    </label>
                   </div>
-                  <div className="flex items-center">
+
+                  <div className="flex items-center border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                    <input
+                      type="radio"
+                      id="cashOnDelivery"
+                      name="paymentMethod"
+                      value="cashOnDelivery"
+                      checked={formData.paymentMethod === "cashOnDelivery"}
+                      onChange={handleChange}
+                      className="mr-3"
+                    />
+                    <label htmlFor="cashOnDelivery" className="flex-1 cursor-pointer flex items-center">
+                      <Banknote className="mr-2 text-gray-600" size={20} />
+                      <span className="font-medium">Cash on Delivery</span>
+                    </label>
+                  </div>
+                  
+                  <div className="flex items-center border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
                     <input
                       type="radio"
                       id="paypal"
@@ -232,16 +252,34 @@ const Checkout: React.FC = () => {
                       value="paypal"
                       checked={formData.paymentMethod === "paypal"}
                       onChange={handleChange}
-                      className="mr-2"
+                      className="mr-3"
                     />
-                    <label htmlFor="paypal">PayPal</label>
+                    <label htmlFor="paypal" className="flex-1 cursor-pointer flex items-center">
+                      <span className="font-medium">PayPal</span>
+                    </label>
                   </div>
                 </div>
                 
-                {/* Credit Card fields would go here in a real implementation */}
                 {formData.paymentMethod === "creditCard" && (
-                  <div className="mt-4 text-sm text-gray-500">
-                    This is a demo store. No payment is required.
+                  <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                    <p className="text-sm text-gray-500 mb-2">
+                      This is a demo store. No actual payment will be processed.
+                    </p>
+                    {/* Credit card form would go here in a real implementation */}
+                  </div>
+                )}
+
+                {formData.paymentMethod === "cashOnDelivery" && (
+                  <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-start">
+                      <Truck className="mr-2 text-gray-600 flex-shrink-0 mt-1" size={20} />
+                      <div>
+                        <p className="text-sm font-medium mb-1">Cash on Delivery</p>
+                        <p className="text-sm text-gray-500">
+                          Pay with cash upon delivery. Please have the exact amount ready.
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
