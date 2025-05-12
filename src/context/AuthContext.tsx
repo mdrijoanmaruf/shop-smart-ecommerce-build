@@ -20,7 +20,7 @@ type AuthContextType = {
 };
 
 // Create context with default values
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | null>(null);
 
 // Mock user database (in a real app, this would be a server/database call)
 const MOCK_USERS: Record<string, { id: string; email: string; name: string; password: string }> = {};

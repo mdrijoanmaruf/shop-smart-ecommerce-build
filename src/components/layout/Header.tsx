@@ -1,239 +1,226 @@
-
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { Menu, Search, ShoppingBag, Heart, User, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useAuth } from "@/context/AuthContext";
-import { Search, ShoppingCart, Heart, Menu, X, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 const Header: React.FC = () => {
-  const { toggleCart, totalItems: cartItems } = useCart();
-  const { totalItems: wishlistItems } = useWishlist();
-  const { user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const isMobile = useIsMobile();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const { totalItems, toggleCart } = useCart();
+  const { totalItems: wishlistItems } = useWishlist();
+  const { user, logout } = useAuth();
+  const location = useLocation();
 
-  // Toggle mobile menu
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location]);
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // Close mobile menu when window resizes to desktop
-  useEffect(() => {
-    if (!isMobile && isMenuOpen) {
-      setIsMenuOpen(false);
-    }
-  }, [isMobile, isMenuOpen]);
+  const toggleSearch = () => {
+    setIsSearchOpen(!isSearchOpen);
+  };
 
-  // Handle scroll event to change header style
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-
-  // Navigation links
-  const navLinks = [
-    { name: "Home", path: "/" },
-    { name: "Shop", path: "/shop" },
-    { name: "Categories", path: "/categories" },
-    { name: "About", path: "/about" },
-    { name: "Contact", path: "/contact" },
-  ];
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Search for:", searchQuery);
+    // Implement search functionality
+    setIsSearchOpen(false);
+  };
 
   return (
-    <header 
-      className={`sticky top-0 w-full z-30 transition-all duration-300 ${
-        isScrolled ? 'bg-white shadow-md' : 'bg-white/80 backdrop-blur-md'
-      }`}
-    >
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16 md:h-20">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="text-2xl font-bold text-brand-navy">
-            ShopStore
+          <Link to="/" className="font-bold text-xl md:text-2xl">
+            LOVABLE
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              <Link 
-                key={link.name} 
-                to={link.path}
-                className="text-gray-700 hover:text-brand-navy transition-colors"
-              >
-                {link.name}
-              </Link>
-            ))}
+          <nav className="hidden md:flex space-x-8">
+            <Link to="/" className="text-gray-600 hover:text-gray-900">
+              Home
+            </Link>
+            <Link to="/shop" className="text-gray-600 hover:text-gray-900">
+              Shop
+            </Link>
+            <Link to="/categories" className="text-gray-600 hover:text-gray-900">
+              Categories
+            </Link>
+            <Link to="/about" className="text-gray-600 hover:text-gray-900">
+              About
+            </Link>
+            <Link to="/contact" className="text-gray-600 hover:text-gray-900">
+              Contact
+            </Link>
           </nav>
 
-          {/* Desktop Action Buttons */}
-          <div className="hidden md:flex items-center space-x-3">
-            <button className="p-2 rounded-full hover:bg-gray-100" aria-label="Search">
+          {/* Actions */}
+          <div className="flex items-center space-x-4">
+            {/* Search Button */}
+            <button
+              onClick={toggleSearch}
+              className="text-gray-600 hover:text-gray-900"
+              aria-label="Search"
+            >
               <Search size={20} />
             </button>
-            <Link to="/wishlist" className="p-2 rounded-full hover:bg-gray-100 relative" aria-label="Wishlist">
+
+            {/* Wishlist */}
+            <Link to="/wishlist" className="text-gray-600 hover:text-gray-900 relative">
               <Heart size={20} />
               {wishlistItems > 0 && (
-                <div className="absolute -top-1 -right-1 rounded-full bg-brand-coral text-white text-xs w-5 h-5 flex items-center justify-center">
+                <span className="absolute -top-2 -right-2 bg-brand-coral text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {wishlistItems}
-                </div>
+                </span>
               )}
             </Link>
-            <button 
-              onClick={toggleCart} 
-              className="p-2 rounded-full hover:bg-gray-100 relative"
-              aria-label="Cart"
-            >
-              <ShoppingCart size={20} />
-              {cartItems > 0 && (
-                <div className="absolute -top-1 -right-1 rounded-full bg-brand-coral text-white text-xs w-5 h-5 flex items-center justify-center">
-                  {cartItems}
-                </div>
-              )}
-            </button>
-            
-            {/* User auth buttons */}
-            {user ? (
-              <Link 
-                to="/dashboard"
-                className="flex items-center gap-2 py-1 px-3 rounded-full border border-gray-200 hover:bg-gray-100 transition-colors"
-              >
-                <User size={18} />
-                <span className="text-sm">Account</span>
-              </Link>
-            ) : (
-              <div className="flex items-center space-x-2">
-                <Link
-                  to="/login"
-                  className="text-sm py-1 px-3 text-gray-700 hover:text-brand-navy transition-colors"
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/signup"
-                  className="text-sm py-1 px-3 bg-brand-coral text-white rounded-full hover:bg-brand-coral/90 transition-colors"
-                >
-                  Sign Up
-                </Link>
-              </div>
-            )}
-          </div>
 
-          {/* Mobile Menu Button */}
-          <div className="flex md:hidden items-center space-x-3">
-            <button 
-              onClick={toggleCart} 
-              className="p-2 rounded-full hover:bg-gray-100 relative"
+            {/* Cart */}
+            <button
+              onClick={toggleCart}
+              className="text-gray-600 hover:text-gray-900 relative"
               aria-label="Cart"
             >
-              <ShoppingCart size={20} />
-              {cartItems > 0 && (
-                <div className="absolute -top-1 -right-1 rounded-full bg-brand-coral text-white text-xs w-5 h-5 flex items-center justify-center">
-                  {cartItems}
-                </div>
+              <ShoppingBag size={20} />
+              {totalItems > 0 && (
+                <span className="absolute -top-2 -right-2 bg-brand-coral text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {totalItems}
+                </span>
               )}
             </button>
-            
-            <button 
-              onClick={toggleMenu} 
-              className="p-2 rounded-full hover:bg-gray-100"
-              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+
+            {/* User Account */}
+            {user ? (
+              <div className="relative group">
+                <button className="text-gray-600 hover:text-gray-900 flex items-center">
+                  <User size={20} />
+                </button>
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden group-hover:block">
+                  <div className="px-4 py-2 text-sm text-gray-700 border-b">
+                    Signed in as <span className="font-medium">{user.name}</span>
+                  </div>
+                  <Link
+                    to="/dashboard"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={logout}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <Link to="/login" className="text-gray-600 hover:text-gray-900">
+                <User size={20} />
+              </Link>
+            )}
+
+            {/* Mobile menu button */}
+            <button
+              onClick={toggleMenu}
+              className="md:hidden text-gray-600 hover:text-gray-900"
+              aria-label="Menu"
             >
-              {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              <Menu size={20} />
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className="md:hidden bg-white border-t">
-          <div className="container mx-auto px-4 py-3 space-y-2">
-            {navLinks.map((link) => (
-              <Link 
-                key={link.name} 
-                to={link.path}
-                className="block py-2 text-gray-700 hover:text-brand-navy"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {link.name}
-              </Link>
-            ))}
-            
-            {/* User auth links for mobile */}
-            {user ? (
-              <Link 
-                to="/dashboard"
-                className="flex items-center py-2 text-gray-700"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <User size={18} className="mr-2" />
-                My Account
-              </Link>
-            ) : (
-              <>
-                <Link 
-                  to="/login"
-                  className="block py-2 text-gray-700 hover:text-brand-navy"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Login
-                </Link>
-                <Link 
-                  to="/signup"
-                  className="block py-2 text-gray-700 hover:text-brand-navy"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Sign Up
-                </Link>
-              </>
-            )}
-
-            <div className="pt-2 flex space-x-4 border-t">
-              <Link 
-                to="/wishlist" 
-                className="flex items-center py-2 text-gray-700"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <Heart size={18} className="mr-2" />
-                Wishlist
-                {wishlistItems > 0 && (
-                  <span className="ml-1 rounded-full bg-brand-coral text-white text-xs px-2">
-                    {wishlistItems}
-                  </span>
-                )}
-              </Link>
-              <button 
-                className="flex items-center py-2 text-gray-700"
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  // Fixed: Using optional chaining to safely access focus method
-                  setTimeout(() => {
-                    const searchInput = document.querySelector('input[type="search"]');
-                    if (searchInput && 'focus' in searchInput) {
-                      searchInput.focus();
-                    }
-                  }, 100);
-                }}
-              >
-                <Search size={18} className="mr-2" />
-                Search
+      {/* Search Overlay */}
+      {isSearchOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start justify-center pt-20">
+          <div className="bg-white p-4 rounded-lg shadow-lg w-full max-w-2xl mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-medium">Search Products</h2>
+              <button onClick={toggleSearch} className="text-gray-500 hover:text-gray-700">
+                <X size={20} />
               </button>
             </div>
+            <form onSubmit={handleSearchSubmit} className="flex gap-2">
+              <Input
+                type="text"
+                placeholder="Search for products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-grow"
+                autoFocus
+              />
+              <Button type="submit">Search</Button>
+            </form>
           </div>
+        </div>
+      )}
+
+      {/* Mobile Menu */}
+      {isMenuOpen && (
+        <div className="md:hidden">
+          <nav className="bg-white px-4 pt-2 pb-4 border-t border-gray-200">
+            <ul className="space-y-3">
+              <li>
+                <Link to="/" className="block text-gray-600 hover:text-gray-900">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link to="/shop" className="block text-gray-600 hover:text-gray-900">
+                  Shop
+                </Link>
+              </li>
+              <li>
+                <Link to="/categories" className="block text-gray-600 hover:text-gray-900">
+                  Categories
+                </Link>
+              </li>
+              <li>
+                <Link to="/about" className="block text-gray-600 hover:text-gray-900">
+                  About
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="block text-gray-600 hover:text-gray-900">
+                  Contact
+                </Link>
+              </li>
+              {user ? (
+                <>
+                  <li>
+                    <Link to="/dashboard" className="block text-gray-600 hover:text-gray-900">
+                      Dashboard
+                    </Link>
+                  </li>
+                  <li>
+                    <button
+                      onClick={logout}
+                      className="block text-gray-600 hover:text-gray-900 w-full text-left"
+                    >
+                      Sign out
+                    </button>
+                  </li>
+                </>
+              ) : (
+                <li>
+                  <Link to="/login" className="block text-gray-600 hover:text-gray-900">
+                    Login / Register
+                  </Link>
+                </li>
+              )}
+            </ul>
+          </nav>
         </div>
       )}
     </header>
